@@ -1,3 +1,5 @@
 from .client import Client
 
-__all__ = ["Client"]
+Loritta = Client
+
+__all__ = ["Client", "Loritta"]
