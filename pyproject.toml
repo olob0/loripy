@@ -1,0 +1,47 @@
+[project]
+name = "loripy"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Lobooooooo14", email = "88998991+Lobooooooo14@users.noreply.github.com" },
+]
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.12.5",
+]
+
+[tool.taskipy.tasks]
+lint = "ruff check"
+format = "ruff format"
+types = 'ty check'
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+ignore = ["D104"]
+
+[tool.ruff.format]
+line-ending = "lf"
+indent-style = "space"
+quote-style = "double"
+docstring-code-format = true
+skip-magic-trailing-comma = false
+
+exclude = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[project.scripts]
+loripy = "loripy:main"
+
+[build-system]
+requires = ["uv_build>=0.9.21,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["ruff>=0.15.5", "taskipy>=1.14.1", "ty>=0.0.21"]
