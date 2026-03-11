@@ -21,24 +21,30 @@ class Requester:
             headers={"Authorization": api_key},
         )
 
-    async def request(self, method: Methods, url: str, **kwargs):
-        await self.ratelimiter.wait()
+    async def request(self, method: Methods, url: str, retries: int = 3, **kwargs):
+        attempt = 0
+        while True:
+            attempt += 1
+            await self.ratelimiter.wait()
 
-        response = await self.http.request(method, url, **kwargs)
+            response = await self.http.request(method, url, **kwargs)
 
-        self.ratelimiter.update(response.headers)
+            self.ratelimiter.update(response.headers)
 
-        if response.status_code == 404:
-            raise NotFoundError(f"Resource not found: {url}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Resource not found: {url}")
 
-        if response.status_code == 401:
-            raise UnauthorizedError("Unauthorized")
+            if response.status_code == 401:
+                raise UnauthorizedError("Unauthorized")
 
-        if response.status_code == 429:
-            raise RateLimitedError("Rate limit exceeded")
+            if response.status_code == 429:
+                if attempt <= retries:
+                    await self.ratelimiter.wait()
+                    continue
+                raise RateLimitedError("Rate limit exceeded")
 
-        if response.is_error:
-            raise LoripyError(f"API error {response.status_code}: {response.text}")
+            if response.is_error:
+                raise LoripyError(f"API error {response.status_code}: {response.text}")
 
-        response.raise_for_status()
-        return response.json()
+            response.raise_for_status()
+            return response.json()
