@@ -48,5 +48,3 @@ class RateLimiter:
             self.remaining = max(0, int(headers.get("X-RateLimit-Remaining", 0)))
         except Exception:
             self.remaining = 0
-
-        print(f"[debug] remaining: {self.remaining}, reset_at: {self.reset_at}")
