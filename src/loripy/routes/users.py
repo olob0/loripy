@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from datetime import datetime
 
 from loripy.enums import TransactionType
+from loripy.exceptions import NotFoundError
 from loripy.models import TransactionsResponse, User
 from loripy.requester import Requester
 
@@ -10,9 +11,12 @@ class UsersRoute:
     def __init__(self, http: Requester):
         self.http = http
 
-    async def get(self, user_id: int) -> User:
-        data = await self.http.request("GET", f"users/{user_id}")
-        return User.model_validate(data)
+    async def get(self, user_id: int) -> User | None:
+        try:
+            data = await self.http.request("GET", f"users/{user_id}")
+            return User.model_validate(data)
+        except NotFoundError:
+            return None
 
     async def get_transactions(
         self,
