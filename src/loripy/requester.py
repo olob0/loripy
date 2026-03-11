@@ -1,6 +1,10 @@
+from typing import Literal
+
 import httpx
 
 from loripy.ratelimiter import RateLimiter
+
+Methods = Literal["GET", "POST", "PUT", "DELETE"]
 
 
 class Requester:
@@ -11,7 +15,7 @@ class Requester:
             headers={"Authorization": api_key},
         )
 
-    async def request(self, url: str, method: str = "GET", **kwargs):
+    async def request(self, method: Methods, url: str, **kwargs):
         await self.ratelimiter.wait()
 
         response = await self.http.request(method, url, **kwargs)
