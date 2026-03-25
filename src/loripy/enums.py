@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TransactionType(Enum):
+class TransactionType(StrEnum):
     """Types of transactions in the system."""
 
     PAYMENT = "PAYMENT"

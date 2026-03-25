@@ -1,9 +1,10 @@
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import UTC, datetime
 
 from loripy.enums import TransactionType
 from loripy.exceptions import NotFoundError
-from loripy.models import TransactionsResponse, User
+from loripy.models.transaction import TransactionsResponse
+from loripy.models.user import User
 from loripy.requester import Requester
 
 
@@ -17,6 +18,11 @@ class UsersRoute:
             return User.model_validate(data)
         except NotFoundError:
             return None
+
+    def _format_date(self, dt: datetime) -> str:
+        if dt.tzinfo is None:
+            return f"{dt.isoformat()}Z"
+        return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
     async def get_transactions(
         self,
@@ -49,10 +55,10 @@ class UsersRoute:
                 params["transactionTypes"] = ",".join(t.value for t in transaction_type)
 
         if before_date:
-            params["beforeDate"] = before_date.isoformat()
+            params["beforeDate"] = self._format_date(before_date)
 
         if after_date:
-            params["afterDate"] = after_date.isoformat()
+            params["afterDate"] = self._format_date(after_date)
 
         data = await self.http.request(
             "GET",
